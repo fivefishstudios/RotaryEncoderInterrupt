@@ -123,11 +123,11 @@ int main(){
   // setup Interrupts for Encoder Output A/B
   EncoderOutA.attach_asserted(&RotaryEncoderHandlerA_assert);
   EncoderOutA.attach_deasserted(&RotaryEncoderHandlerA_deasserted);
-  EncoderOutA.setSampleFrequency(250);   // in (us)
+  EncoderOutA.setSampleFrequency(500);   // in (us)
   
   EncoderOutB.attach_asserted(&RotaryEncoderHandlerB_assert);
   EncoderOutB.attach_deasserted(&RotaryEncoderHandlerB_deasserted); 
-  EncoderOutB.setSampleFrequency(250);   // in (us)
+  EncoderOutB.setSampleFrequency(500);   // in (us)
 
   // setup LCD Display
   lcd.Clear(LCD_COLOR_RED);
