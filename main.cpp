@@ -27,8 +27,9 @@ DigitalOut led2(PG_14);
 
 void SwitchHandler(){
   led2 = !led2;
-  greenLed = !greenLed;
+  // greenLed = !greenLed;
 }
+
 
 // Interrupt for Encoder Rotary Out A/B
 PinDetect EncoderOutA(PC_12, PullUp);  
@@ -38,6 +39,15 @@ int EncoderOutB_LastState = 0;
 int EncoderOutA_State;
 int EncoderOutB_State;
 int rotation_value = 0;
+
+void UpdateRotaryValue(){
+  // display on LCD
+  lcd.SetFont(&Font24);
+  lcd.SetBackColor(LCD_COLOR_RED);   
+  lcd.SetTextColor(LCD_COLOR_WHITE);
+  sprintf(lcdBuffer, "%03d", rotation_value);
+  lcd.DisplayStringAt(1, 100, (uint8_t *)lcdBuffer, CENTER_MODE);   
+}
 
 // Check Rotary Encoder status (switch + rotation)
 // based on datasheet (CW Rotation)
@@ -63,6 +73,7 @@ void RotaryEncoderHandlerA_assert(){
     }
   }  
   EncoderOutA_LastState = EncoderOutA_State;
+  UpdateRotaryValue();
 }
 
 void RotaryEncoderHandlerA_deasserted(){
@@ -81,6 +92,7 @@ void RotaryEncoderHandlerA_deasserted(){
     }
   }  
   EncoderOutA_LastState = EncoderOutA_State;
+  UpdateRotaryValue();
 }
 
 void RotaryEncoderHandlerB_assert(){
@@ -98,17 +110,10 @@ void RotaryEncoderHandlerB_deasserted(){
     }
   }
   EncoderOutB_LastState = EncoderOutB_State;  
+  UpdateRotaryValue();
 }
 
 
-void UpdateRotaryValue(){
-  // display on LCD
-  lcd.SetFont(&Font24);
-  lcd.SetBackColor(LCD_COLOR_RED);   
-  lcd.SetTextColor(LCD_COLOR_WHITE);
-  sprintf(lcdBuffer, "%03d", rotation_value);
-  lcd.DisplayStringAt(1, 100, (uint8_t *)lcdBuffer, CENTER_MODE);   
-}
 
 
 int main(){
@@ -140,12 +145,16 @@ int main(){
   lcd.DisplayStringAt(0, 220, (uint8_t *)" Interrupt Driven ", CENTER_MODE);
   lcd.DisplayStringAt(0, 240, (uint8_t *)" Rotary Encoder ", CENTER_MODE);
 
+  UpdateRotaryValue();  // initial display of value
   // start of infinite loop....
   while(1){   
     // we're relying on interrupts for all switches and encoders to work
     // no polling done inside this loop
-    // we're just displaying values on the LCD screen
-    UpdateRotaryValue();
+    // Note: We must have LCD update inside the Interrupt routine so the display is not affected by blocking delays
+
+    greenLed = !greenLed;
+    wait(2);
+
   }
 
   return 0;
